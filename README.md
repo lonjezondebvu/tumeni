@@ -4,7 +4,7 @@ A simpler way to ride. A local Malawi ride-hailing foundation with a Laravel 13 
 
 ## Run on Windows PowerShell
 
-Prerequisites actually observed: PHP 8.3.31 (pdo_pgsql, mbstring, openssl, fileinfo), Composer 2.10.3, Node 24.19.0, npm 11.17.0 and PostgreSQL binaries at `C:\Program Files\PostgreSQL\18\bin`. Version locks are committed as source files. Laravel 13 supports the installed PHP 8.3; React 19.2 and Vite 8 support this Node runtime. See [architecture](docs/ARCHITECTURE.md).
+Prerequisites actually observed: PHP 8.3.31 (pdo_pgsql, mbstring, openssl, fileinfo), Composer 2.10.3, Node 24.19.0, npm 11.17.0 and PostgreSQL binaries at `C:\Program Files\PostgreSQL\18\bin`. Version locks are committed as source files. Laravel 13 supports the installed PHP 8.3; React 19.3.0 and Vite 8.3.4 were installed; this Node runtime passed their build. See [architecture](docs/ARCHITECTURE.md).
 
 From the repository root:
 

@@ -2,7 +2,7 @@
 
 ## Observed compatibility
 
-PHP 8.3.31 / Composer 2.10.3 support Laravel 13.35.0 installed from the stable Laravel 13 release line. Laravel 13 requires PHP >=8.3: https://laravel.com/docs/13.x/releases. React documentation identifies React 19.2 as stable: https://react.dev/versions. Vite 8 requires Node 20.19+ / 22.12+: https://vite.dev/guide/. Node 24.19.0 satisfies it. Actual dependency resolutions are in the two lockfiles. Vite 8.3.4 was observed at build. PostgreSQL 18 supports partial unique indexes, row locks and JSONB used here. SQLite is deliberately unsupported for this schema and tests. PostGIS is not needed for fixture routing and is deferred.
+PHP 8.3.31 / Composer 2.10.3 support Laravel 13.35.0 installed from the stable Laravel 13 release line. Laravel 13 requires PHP >=8.3: https://laravel.com/docs/13.x/releases. React documentation was checked at https://react.dev/versions; the compatible ^19.2 range resolved to stable React 19.3.0 in package-lock.json. React DOM is also 19.3.0; no prerelease tags were selected. Vite 8 requires Node 20.19+ / 22.12+: https://vite.dev/guide/. Node 24.19.0 satisfies it. Actual dependency resolutions are in the two lockfiles. Vite 8.3.4 was observed at build. PostgreSQL 18 supports partial unique indexes, row locks and JSONB used here. SQLite is deliberately unsupported for this schema and tests. PostGIS is not needed for fixture routing and is deferred.
 
 ## Boundaries
 
