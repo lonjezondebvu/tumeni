@@ -14,6 +14,17 @@ try {
   php artisan key:generate
   if($LASTEXITCODE -ne 0){throw 'Key generation failed'}
  }
+ if($content -notmatch '(?m)^DEV_PAYMENT_WEBHOOK_SECRET=.+$'){
+  $bytes=New-Object byte[] 32
+  $rng=[Security.Cryptography.RandomNumberGenerator]::Create()
+  try{$rng.GetBytes($bytes)}finally{$rng.Dispose()}
+  $secret=[Convert]::ToBase64String($bytes)
+  $envText=[IO.File]::ReadAllText((Join-Path $pwd '.env'))
+  if($envText -match '(?m)^DEV_PAYMENT_WEBHOOK_SECRET=\s*$'){
+   $envText=[regex]::Replace($envText,'(?m)^DEV_PAYMENT_WEBHOOK_SECRET=[^\r\n]*',('DEV_PAYMENT_WEBHOOK_SECRET='+$secret))
+  }else{$envText+="`nDEV_PAYMENT_WEBHOOK_SECRET=$secret`n"}
+  [IO.File]::WriteAllText((Join-Path $pwd '.env'),$envText,(New-Object System.Text.UTF8Encoding($false)))
+ }
  php artisan migrate --force
  if($LASTEXITCODE -ne 0){throw 'Migration failed'}
  php artisan db:seed --class=DemoSeeder --force
