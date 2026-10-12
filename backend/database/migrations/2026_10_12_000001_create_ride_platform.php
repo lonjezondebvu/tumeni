@@ -24,7 +24,7 @@ return new class extends Migration {
   DB::statement("CREATE UNIQUE INDEX one_active_driver_trip ON trips(driver_id) WHERE state IN ('assigned','driver_arriving','driver_arrived','in_progress')");
   DB::statement("CREATE UNIQUE INDEX one_active_rider_trip ON trips(rider_id) WHERE state IN ('matching','assigned','driver_arriving','driver_arrived','in_progress')");
   DB::statement('ALTER TABLE pricing_rules ADD CONSTRAINT valid_pricing CHECK (base_minor >= 0 AND per_km_minor >= 0 AND commission_bps BETWEEN 0 AND 10000)');
-  DB::unprepared("CREATE FUNCTION immutable_record() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Auditable records are append-only'; END; $$");
+  DB::unprepared("CREATE OR REPLACE FUNCTION immutable_record() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Auditable records are append-only'; END; $$");
   foreach(['credit_ledger','commissions','trip_events','audit_records','pricing_rules'] as $table) DB::statement("CREATE TRIGGER immutable_{$table} BEFORE UPDATE OR DELETE ON {$table} FOR EACH ROW EXECUTE FUNCTION immutable_record()");
  }
  public function down(): void {

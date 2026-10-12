@@ -53,8 +53,8 @@ class CashTripTest extends TestCase {
   $this->assigned();$r=DB::table('accounts')->insertGetId(['phone'=>'+265990000099','first_name'=>'Other','role'=>'rider','created_at'=>now(),'updated_at'=>now()]);$t=$this->service()->request($r,$this->quote()['id'],'other-rider-key','');$this->withSession(['account_id'=>2])->postJson("/api/v1/driver/offers/{$t->id}/accept")->assertStatus(409);
  }
  public function test_development_adapters_are_disabled_in_production():void{
-  $this->app->detectEnvironment(fn()=>'production');$this->postJson('/api/v1/dev/login',['role'=>'admin'])->assertStatus(503);$this->postJson('/api/v1/auth/otp',['phone'=>'+265991234567'])->assertStatus(503);
-  $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);$this->quote();
+  $this->withSession(['_token'=>'production-test-token'])->withHeader('X-CSRF-TOKEN','production-test-token');$this->app->detectEnvironment(fn()=>'production');$this->postJson('/api/v1/dev/login',['role'=>'admin'])->assertStatus(503);$this->postJson('/api/v1/auth/otp',['phone'=>'+265991234567'])->assertStatus(503);
+  $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);try{$this->quote();}finally{$this->app->detectEnvironment(fn()=>'testing');}
  }
  public function test_digital_branch_does_not_deduct_credit_and_public_booking_rejects_it():void{
   $q=$this->quote();$this->withSession(['account_id'=>3])->postJson('/api/v1/trips',['quote_id'=>$q['id'],'payment_method'=>'mobile_money'],['Idempotency-Key'=>'digital-test-key'])->assertStatus(422);

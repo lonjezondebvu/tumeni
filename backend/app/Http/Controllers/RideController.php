@@ -7,7 +7,7 @@ use App\Domain\TripService;
 class RideController extends Controller {
  public function __construct(private TripService $trips){}
  private function account(Request $r, array $roles=[]): object {
-  $a=DB::table('accounts')->find($r->session()->get('account_id'));abort_unless($a,401,'Please verify your phone number.');abort_if($roles && !in_array($a->role,$roles),403,'Your role cannot perform this action.');return $a;
+  $a=DB::table('accounts')->find($r->session()->get('account_id'));abort_unless($a,401,'Please verify your phone number.');abort_if($roles && !in_array($a->role,$roles),403,'Your role cannot perform this action.');if (!$r->isMethod('GET')) $this->limited('sensitive:'.$a->id,60,60);return $a;
  }
  private function dev(): void {abort_if(app()->environment('production') || !config('ride.development_adapters'),503,'Development adapters are disabled.');}
  private function limited(string $key,int $max,int $seconds): void {abort_if(RateLimiter::tooManyAttempts($key,$max),429,'Too many attempts. Please try later.');RateLimiter::hit($key,$seconds);}
@@ -34,6 +34,7 @@ class RideController extends Controller {
  public function demoLogin(Request $r): array {
   $this->dev();$this->limited('demo-login:'.$r->ip(),20,60);$v=$r->validate(['role'=>'required|in:admin,driver,rider']);$phone=['admin'=>'+265990000001','driver'=>'+265990000002','rider'=>'+265990000003'][$v['role']];$a=DB::table('accounts')->where('phone',$phone)->first();abort_unless($a,503,'Run the demo seeder first.');$r->session()->regenerate();$r->session()->put('account_id',$a->id);return ['role'=>$a->role];
  }
+ public function developmentPayment(Request $r): array { $this->dev();$this->account($r,['admin']);return app(\App\Domain\PaymentEvents::class)->receive($r->getContent(),$r->header('X-Development-Signature','')); }
  public function logout(Request $r): array {$r->session()->invalidate();$r->session()->regenerateToken();return ['ok'=>true];}
  private function point(array $p): array {
   if(isset($p['landmark_id'])){$l=DB::table('landmarks')->find($p['landmark_id']);abort_unless($l,422,'Landmark not found.');return ['landmark_id'=>$l->id,'display_name'=>$l->name,'latitude'=>(float)$l->latitude,'longitude'=>(float)$l->longitude,'verified'=>$l->verified,'meeting_point'=>$l->meeting_point];}
@@ -55,7 +56,7 @@ class RideController extends Controller {
   $a=$this->account($r,['driver']);$d=$this->driver($a);$this->trips->expire();
   $q=DB::table('trips')->where('state','matching')->where('expires_at','>',now())->whereNotIn('id',DB::table('offer_declines')->where('driver_id',$d->id)->select('trip_id'));
   $offers=$d->online && $d->status==='approved' && $d->vehicle_approved ? $q->limit(20)->get()->map(fn($t)=>$this->trips->view($t,$a->id,$a->role)):[];
-  $completed=DB::table('trips')->where('driver_id',$d->id)->where('state','completed')->whereDate('completed_at',now('Africa/Blantyre')->toDateString())->get();
+  $completed=DB::table('trips')->where('driver_id',$d->id)->where('state','completed')->whereBetween('completed_at',[now('Africa/Blantyre')->startOfDay()->utc(),now('Africa/Blantyre')->endOfDay()->utc()])->get();
   return ['driver'=>['id'=>$d->id,'status'=>$d->status,'online'=>$d->online,'vehicle'=>$d->vehicle,'plate'=>$d->plate,'vehicle_approved'=>$d->vehicle_approved],'available_credit_minor'=>$this->trips->balance($d->id),'today_earnings_minor'=>$completed->sum(fn($t)=>json_decode($t->pricing,true)['driver_minor']),'completed_trips'=>$completed->count(),'offers'=>$offers,'ledger'=>DB::table('credit_ledger')->where('driver_id',$d->id)->orderByDesc('id')->limit(100)->get(),'review_cases'=>DB::table('incidents')->where('account_id',$a->id)->get()];
  }
  public function online(Request $r): array {

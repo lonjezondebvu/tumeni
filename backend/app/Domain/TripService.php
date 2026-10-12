@@ -91,6 +91,8 @@ final class TripService {
  public function view(object $t,int $actor,string $role): array{
   $d=$t->driver_id?DB::table('drivers')->join('accounts','accounts.id','=','drivers.account_id')->where('drivers.id',$t->driver_id)->select('drivers.id','accounts.first_name','drivers.vehicle','drivers.plate')->first():null;
   $v=['id'=>$t->id,'state'=>$t->state,'pickup'=>json_decode($t->pickup,true),'destination'=>json_decode($t->destination,true),'pickup_note'=>$t->pickup_note,'pricing'=>json_decode($t->pricing,true),'payment_method'=>$t->payment_method,'payment_status'=>$t->payment_status,'fee_state'=>$t->fee_state,'driver'=>$d,'created_at'=>$t->created_at,'completed_at'=>$t->completed_at,'expires_at'=>$t->expires_at];
+  $q=DB::table('quotes')->find($t->quote_id);
+  $v['route']=['distance_m'=>$q->distance_m,'duration_s'=>$q->duration_s,'provider'=>$q->provider,'label'=>$q->provider==='development_fixture'?'Demo route · not live road conditions':'Provider route estimate'];
   if($t->rider_id===$actor && in_array($t->state,self::ACTIVE))$v['pickup_pin']=Crypt::decryptString($t->pin_encrypted);return $v;
  }
 }

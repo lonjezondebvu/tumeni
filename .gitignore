@@ -8,3 +8,6 @@
 /backend/storage/app/private/*
 /frontend/node_modules/
 /frontend/dist/
+/backend/public/app/
+/frontend/*.tsbuildinfo
+/backend/database/*.sqlite

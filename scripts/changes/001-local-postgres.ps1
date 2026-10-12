@@ -13,6 +13,8 @@ if ($LASTEXITCODE -ne 0) {
     & "$pg/pg_ctl.exe" -D $data -l (Join-Path $root '.local/postgres.log') -o '-p 55432 -h 127.0.0.1' start
     if ($LASTEXITCODE -ne 0) { throw 'PostgreSQL start failed' }
 }
+& "$pg/psql.exe" -h 127.0.0.1 -p 55432 -U tumeni -d postgres -c "ALTER ROLE tumeni SET timezone TO 'UTC';"
+if ($LASTEXITCODE -ne 0) { throw 'Timezone setup failed' }
 foreach ($db in @('tumeni','tumeni_test')) {
     $exists = & "$pg/psql.exe" -h 127.0.0.1 -p 55432 -U tumeni -d postgres -tAc "SELECT 1 FROM pg_database WHERE datname='$db'"
     if ($LASTEXITCODE -ne 0) { throw 'database check failed' }
