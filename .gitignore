@@ -1,0 +1,10 @@
+/.cache/
+/.local/
+/backend/.env
+/backend/.env.testing
+/backend/vendor/
+/backend/node_modules/
+/backend/public/build/
+/backend/storage/app/private/*
+/frontend/node_modules/
+/frontend/dist/
