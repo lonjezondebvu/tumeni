@@ -13,9 +13,40 @@ function Post($s,$path,$body,$extra=@{}) {
 }
 function Get($s,$path){Invoke-RestMethod "$BaseUrl/api/v1/$path" -WebSession $s.Session -Headers @{Accept='application/json'}}
 function Login($s,$role){Post $s 'dev/login' @{role=$role}|Out-Null;$s.Token=(Get $s 'bootstrap').csrf_token}
-$admin=Session; Login $admin 'admin'
-Post $admin 'admin/drivers/1/review' @{status='approved';vehicle_approved=$true;reason='HTTP demo: fictional fixture documents reviewed'}|Out-Null
+$admin=Session
+Assert ((Get $admin 'bootstrap').development) 'This script only supports fictional development data'
+Login $admin 'admin'
 $driver=Session;Login $driver 'driver'
+$application=Get $driver 'driver/application'
+if($application.profile.full_name -and $application.profile.full_name -ne 'HTTP DEMO Fictional Driver'){throw 'Refusing to change a non-demo driver application'}
+if($application.onboarding_state -ne 'approved'){
+ $expiry=(Get-Date).AddYears(1).ToString('yyyy-MM-dd')
+ if($application.onboarding_state -ne 'submitted'){
+  $profile=@{full_name='HTTP DEMO Fictional Driver';date_of_birth='1990-01-01';nationality='Malawian';address='HTTP DEMO only';district='Mzuzu';emergency_name='HTTP DEMO contact';emergency_phone='+265991234567';national_id_number='HTTP-DEMO-ID-1';national_id_expires_at=$expiry;licence_number='HTTP-DEMO-LICENCE';licence_class='B';licence_expires_at=$expiry;insurance_expires_at=$expiry;fitness_expires_at=$expiry;permit_expires_at=$expiry;make='Toyota';model='Corolla';colour='Silver';plate='DEMO 1234';vin='HTTP-DEMO-VIN';year=2020;seats=5;ownership='owned';consent=$true}
+  $application=Post $driver 'driver/application' $profile
+  Add-Type -AssemblyName System.Net.Http
+  $handler=[System.Net.Http.HttpClientHandler]::new();$handler.CookieContainer=$driver.Session.Cookies
+  $client=[System.Net.Http.HttpClient]::new($handler)
+  $client.DefaultRequestHeaders.Add('X-CSRF-TOKEN',$driver.Token);$client.DefaultRequestHeaders.Add('Accept','application/json')
+  try{
+   $png=[Convert]::FromBase64String('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+j6N8AAAAASUVORK5CYII=')
+   foreach($kind in $application.required_documents){
+    $multipart=[System.Net.Http.MultipartFormDataContent]::new()
+    try{
+     $multipart.Add([System.Net.Http.StringContent]::new($kind),'kind')
+     $file=[System.Net.Http.ByteArrayContent]::new($png);$file.Headers.ContentType=[System.Net.Http.Headers.MediaTypeHeaderValue]::new('image/png')
+     $multipart.Add($file,'document','FICTIONAL-DEMO.png')
+     $response=$client.PostAsync("$BaseUrl/api/v1/driver/document",$multipart).GetAwaiter().GetResult()
+     try{[void]$response.EnsureSuccessStatusCode()}finally{$response.Dispose()}
+    }finally{$multipart.Dispose()}
+   }
+  }finally{$client.Dispose();$handler.Dispose()}
+  $application=Post $driver 'driver/application/submit' @{}
+ }
+ foreach($document in $application.documents){Post $admin "admin/drivers/1/documents/$($document.id)/review" @{status='accepted';reason='HTTP DEMO ONLY: fictional document reviewed, not real verification'}|Out-Null}
+ $checks=@{};foreach($check in $application.verification_checks){$checks[$check]=$true}
+ Post $admin 'admin/drivers/1/review' @{status='approved';vehicle_approved=$true;reason='HTTP DEMO ONLY: fictional driver and vehicle verification';checks=$checks}|Out-Null
+}
 Post $driver 'driver/online' @{online=$true}|Out-Null
 $before=(Get $driver 'driver').available_credit_minor
 $rider=Session

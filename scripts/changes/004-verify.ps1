@@ -8,6 +8,12 @@ try {
 }finally{Pop-Location}
 Push-Location frontend
 try {
+ npm.cmd run test:language
+ if($LASTEXITCODE -ne 0){throw 'Language tests failed'}
+ npm.cmd run test:language-files
+ if($LASTEXITCODE -ne 0){throw 'Language file workflow tests failed'}
+ npm.cmd run test:places
+ if($LASTEXITCODE -ne 0){throw 'Place search tests failed'}
  npm.cmd run build
  if($LASTEXITCODE -ne 0){throw 'Typecheck/build failed'}
 }finally{Pop-Location}

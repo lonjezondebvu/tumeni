@@ -12,6 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [\App\Http\Middleware\PrivacyHeaders::class]);
+        $middleware->preventRequestForgery(except: ['api/v1/payments/paychangu/webhook','api/v1/payments/paychangu/return']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (\Throwable $e, \Illuminate\Http\Request $request) {

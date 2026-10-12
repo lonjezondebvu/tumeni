@@ -72,6 +72,11 @@ Not production-ready: real SMS/routing/payment adapters, device-token authentica
 
 Next milestone: replace development routing and SMS, add staff identity/MFA and privacy retention jobs, then implement device tokens and the first tested Android client. Mobile money should follow provider integration, signed callback/reconciliation tests and settlement review.
 
+## Languages
+
+Chichewa is the default. The header shows **English** while Chichewa is selected, and **Chichewa** while English is selected. The choice is saved on the device and synchronized across tabs; changing it keeps forms and the current booking open. Only the language preference is stored in localStorage, never authentication tokens.
+
+Rider, driver and admin interface messages, accessible labels, status labels and common errors have both languages. Names, entered notes and API values remain unchanged. Translation catalogues live in `frontend/src/i18n/locales`; see [language handoff](docs/LANGUAGES.md). Run `npm.cmd run test:language` in `frontend` for the language checks.
 ## Documentation
 
 - [API contract and examples](docs/API.md)

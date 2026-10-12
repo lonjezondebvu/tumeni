@@ -1,0 +1,19 @@
+import {useState} from 'react';
+import {api} from './api';
+import {tr,translateError,statusLabel} from './i18n';
+import {Button} from './components/ui';
+import {documentLabels,fieldLabels} from './DriverSetup';
+import type {Application} from './DriverSetup';
+const checkLabels:Record<string,string>={identity_matches:'Legal name and national ID match',selfie_matches:'Selfie matches identity photo',licence_valid:'Licence verified for this vehicle class',vehicle_ownership:'Registration and ownership verified',insurance_valid:'Insurance verified for passenger transport',fitness_valid:'Vehicle fitness verified',permit_valid:'Transport permit verified',vehicle_condition:'Vehicle condition and photos reviewed'};
+export function DriverReview({id,reason,reload}:{id:number;reason:string;reload:()=>Promise<void>}){
+ const [data,setData]=useState<Application>();const [checks,setChecks]=useState<Record<string,boolean>>({});const [busy,setBusy]=useState(false);const [error,setError]=useState('');
+ async function refresh(){setData(await api<Application>(`admin/drivers/${id}/application`));}
+ async function perform(fn:()=>Promise<void>){setBusy(true);setError('');try{await fn();}catch(e){setError((e as Error).message);}finally{setBusy(false);}}
+ async function review(status:string){await api(`admin/drivers/${id}/review`,{status,vehicle_approved:status==='approved',reason,checks});await refresh();await reload();}
+ return <details className="driver-review"><summary onClick={()=>{if(!data)perform(refresh);}}>{tr('Review application and documents')}</summary>{error&&<p role="alert">{translateError(error)}</p>}{data&&<><p>{tr('Application status')}: {statusLabel(data.onboarding_state)}</p><p>{tr("Phone number")}: {data.account?.phone}</p><dl className="review-details">{Object.entries(data.profile).filter(([key])=>key!=='consent').map(([key,value])=><div key={key}><dt>{tr(fieldLabels[key]||key.replaceAll('_',' '))}</dt><dd>{String(value)}</dd></div>)}</dl>
+ {data.documents.map(doc=><div className="document-slot" key={doc.id}><a href={`/api/v1/drivers/${id}/documents/${doc.id}`} target="_blank" rel="noreferrer">{tr(documentLabels[doc.kind])}</a><p>{statusLabel(doc.status)} · {doc.review_reason}</p><div className="action-row">{['accepted','rejected'].map(status=><Button key={status} variant="secondary" disabled={busy||reason.length<5||data.onboarding_state!=='submitted'} onClick={()=>perform(async()=>{setData(await api<Application>(`admin/drivers/${id}/documents/${doc.id}/review`,{status,reason}));})}>{tr(status==='accepted'?'Accept document':'Reject document')}</Button>)}</div></div>)}
+ <p className="fine">{tr('Check original records and expiry dates. Photo upload alone is not proof of identity or a background check.')}</p>
+ {data.verification_checks.map(check=><label className="checkbox" key={check}><input type="checkbox" checked={checks[check]===true} onChange={e=>setChecks({...checks,[check]:e.target.checked})}/>{tr(checkLabels[check])}</label>)}
+ <div className="action-row"><Button disabled={busy||reason.length<5||data.verification_checks.some(k=>!checks[k])||data.required_documents.some(k=>!data.documents.some(d=>d.kind===k&&d.status==='accepted'))} onClick={()=>perform(()=>review('approved'))}>{tr('Approve driver & vehicle')}</Button><Button variant="secondary" disabled={busy||reason.length<5} onClick={()=>perform(()=>review('rejected'))}>{tr('Reject')}</Button><Button variant="ghost" disabled={busy||reason.length<5} onClick={()=>perform(()=>review('suspended'))}>{tr('Suspend')}</Button></div></>}
+ </details>;
+}

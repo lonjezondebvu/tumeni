@@ -34,7 +34,7 @@ final class TripService {
  }
  public function accept(int $driver,string $id,int $actor): object {
   return DB::transaction(function()use($driver,$id,$actor){
-   $d=DB::table('drivers')->where('id',$driver)->lockForUpdate()->first();abort_unless($d && $d->online && $d->status==='approved' && $d->vehicle_approved,403,'Driver is not eligible.');
+   $d=DB::table('drivers')->where('id',$driver)->lockForUpdate()->first();abort_unless($d && $d->online && $d->status==='approved' && $d->vehicle_approved && $d->verified_at && app(DriverOnboarding::class)->current($d),403,'Driver is not eligible.');
    $t=DB::table('trips')->where('id',$id)->lockForUpdate()->first();abort_unless($t,404);
    if($t->driver_id===$driver && in_array($t->state,['assigned','driver_arrived','in_progress','completed']))return $t;
    abort_unless($t->state==='matching' && CarbonImmutable::parse($t->expires_at)->isFuture(),409,'Offer is no longer available.');

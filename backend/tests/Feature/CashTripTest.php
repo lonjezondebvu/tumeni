@@ -11,7 +11,7 @@ class CashTripTest extends TestCase {
  private function service():TripService{return app(TripService::class);}
  private function quote():array{return $this->service()->quote(['landmark_id'=>1,'display_name'=>'University','latitude'=>-11.421,'longitude'=>33.997],['landmark_id'=>2,'display_name'=>'Market','latitude'=>-11.465,'longitude'=>34.02]);}
  private function requested():object{return $this->service()->request(3,$this->quote()['id'],'request-test-key','Main gate');}
- private function eligible(int $driver=1):void{DB::table('drivers')->where('id',$driver)->update(['status'=>'approved','vehicle_approved'=>true,'online'=>true]);}
+ private function eligible(int $driver=1):void{DB::table('drivers')->where('id',$driver)->update(['status'=>'approved','vehicle_approved'=>true,'online'=>true,'verified_at'=>now(),'profile_encrypted'=>Crypt::encryptString(json_encode(array_fill_keys(['national_id_expires_at','licence_expires_at','insurance_expires_at','fitness_expires_at','permit_expires_at'],now()->addYear()->toDateString())))]);}
  private function assigned():object{$this->eligible();return $this->service()->accept(1,$this->requested()->id,2);}
  private function started():object{$t=$this->assigned();$this->service()->transition($t->id,2,'driver','arrive');return $this->service()->transition($t->id,2,'driver','start',Crypt::decryptString($t->pin_encrypted));}
  public function test_cash_flow_captures_once_and_preserves_snapshot():void{
@@ -69,8 +69,8 @@ class CashTripTest extends TestCase {
  }
  public function test_admin_review_and_adjustments_are_audited_and_retry_safe():void{
   $this->withSession(['account_id'=>2])->postJson('/api/v1/driver/online',['online'=>true])->assertStatus(403);
-  $this->withSession(['account_id'=>1])->postJson('/api/v1/admin/drivers/1/review',['status'=>'approved','vehicle_approved'=>true,'reason'=>'Demo documents reviewed'])->assertOk();
-  $body=['amount_minor'=>100000,'reference'=>'admin-test-credit','reason'=>'Demonstration top-up'];$this->withSession(['account_id'=>1])->postJson('/api/v1/admin/drivers/1/credit',$body)->assertOk();$this->postJson('/api/v1/admin/drivers/1/credit',$body)->assertOk();$this->assertSame(2100000,$this->service()->balance(1));$this->assertDatabaseCount('audit_records',2);
+  $this->withSession(['account_id'=>1])->postJson('/api/v1/admin/drivers/1/review',['status'=>'approved','vehicle_approved'=>true,'reason'=>'Demo documents reviewed'])->assertStatus(422);
+  $body=['amount_minor'=>100000,'reference'=>'admin-test-credit','reason'=>'Demonstration top-up'];$this->withSession(['account_id'=>1])->postJson('/api/v1/admin/drivers/1/credit',$body)->assertOk();$this->postJson('/api/v1/admin/drivers/1/credit',$body)->assertOk();$this->assertSame(2100000,$this->service()->balance(1));$this->assertDatabaseCount('audit_records',1);
  }
  public function test_manual_coordinate_route_is_unavailable_not_straight_line():void{
   $this->postJson('/api/v1/quotes',['pickup'=>['display_name'=>'Manual','latitude'=>-11.44,'longitude'=>34.0],'destination'=>['landmark_id'=>2]])->assertStatus(422);$this->assertDatabaseCount('quotes',0);
