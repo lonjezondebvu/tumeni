@@ -4,6 +4,7 @@ export const definitions = {
                "name":  "English",
                "documentTitle":  "Tumeni · A simpler way to ride",
                "messages":  {
+                                "Skip to main content":  "Skip to main content",
                                 "English":  "English",
                                 "Chichewa":  "Chichewa",
                                 "Change language to English":  "Change language to English",
@@ -441,13 +442,21 @@ export const definitions = {
                                 "trial_credit":  "trial_credit",
                                 "topup":  "topup",
                                 "Development tools are enabled. Demo drivers are fictional. Payment mode is shown in driver top-ups. No live SMS, road routing or background location. Switching role changes this browser session.":  "Development tools are enabled. Demo drivers are fictional. Payment mode is shown in driver top-ups. No live SMS, road routing or background location. Switching role changes this browser session.",
-                                "National ID expiry date":  "National ID expiry date"
+                                "National ID expiry date":  "National ID expiry date",
+                                "Where are you going?":  "Where are you going?",
+                                "Review your ride":  "Review your ride",
+                                "Check pickup, destination and fare before requesting.":  "Check pickup, destination and fare before requesting.",
+                                "Driver workspace":  "Driver workspace",
+                                "No driver applications yet.":  "No driver applications yet.",
+                                "{0} of {1} required documents uploaded":  "{0} of {1} required documents uploaded",
+                                "No top-ups yet.":  "No top-ups yet."
                             }
            },
     "ny":  {
                "name":  "Chichewa",
                "documentTitle":  "Tumeni · Njira yosavuta yoyendera",
                "messages":  {
+                                "Skip to main content":  "Pitani ku nkhani yaikulu",
                                 "English":  "English",
                                 "Chichewa":  "Chichewa",
                                 "Change language to English":  "Sinthani chinenero kukhala English",
@@ -885,7 +894,14 @@ export const definitions = {
                                 "trial_credit":  "Ngongole yoyambira",
                                 "topup":  "Kuonjezera ngongole",
                                 "Development tools are enabled. Demo drivers are fictional. Payment mode is shown in driver top-ups. No live SMS, road routing or background location. Switching role changes this browser session.":  "Zida zoyesera zatsegulidwa. Madalaivala achitsanzo si enieni. Momwe malipiro alili zikuonetsedwa pa kuonjezera ngongole. Palibe SMS yeniyeni kapena njira zenizeni za misewu. Kusintha udindo kumasintha amene walowa.",
-                                "National ID expiry date":  "Tsiku lotha la chiphaso cha dziko"
+                                "National ID expiry date":  "Tsiku lotha la chiphaso cha dziko",
+                                "Where are you going?":  "Mukupita kuti?",
+                                "Review your ride":  "Unikani ulendo wanu",
+                                "Check pickup, destination and fare before requesting.":  "Onani pokukwerani, komwe mukupita ndi mtengo musanapemphe ulendo.",
+                                "Driver workspace":  "Malo a dalaivala",
+                                "No driver applications yet.":  "Palibe amene wafunsira kukhala dalaivala panobe.",
+                                "{0} of {1} required documents uploaded":  "Zikalata zofunika {0} mwa {1} zaikidwa",
+                                "No top-ups yet.":  "Simunaonjezere ngongole panobe."
                             }
            }
 } as const;

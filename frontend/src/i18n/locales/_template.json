@@ -4,6 +4,7 @@
     "enabled":  false,
     "documentTitle":  "Tumeni · A simpler way to ride",
     "messages":  {
+                     "Skip to main content":  "",
                      "English":  "",
                      "Chichewa":  "",
                      "Change language to English":  "",
@@ -441,6 +442,13 @@
                      "trial_credit":  "",
                      "topup":  "",
                      "Development tools are enabled. Demo drivers are fictional. Payment mode is shown in driver top-ups. No live SMS, road routing or background location. Switching role changes this browser session.":  "",
-                     "National ID expiry date":  ""
+                     "National ID expiry date":  "",
+                     "Where are you going?":  "",
+                     "Review your ride":  "",
+                     "Check pickup, destination and fare before requesting.":  "",
+                     "Driver workspace":  "",
+                     "No driver applications yet.":  "",
+                     "{0} of {1} required documents uploaded":  "",
+                     "No top-ups yet.":  ""
                  }
 }

@@ -1,0 +1,46 @@
+/* Shared visual vocabulary. Responsive thresholds live in style.css:
+   CSS custom properties cannot drive media-query conditions. */
+:root {
+  --green: #075c43;
+  --green-hover: #084934;
+  --text: #202922;
+  --muted: #596557;
+  --border: #d7ddd5;
+  --control-border: #899386;
+  --canvas: #fbfcf9;
+  --surface: #fff;
+  --surface-muted: #f1f4ee;
+  --selected: #eaf2ec;
+  --selected-border: #ccdccc;
+  --focus: #075c43;
+  --error-bg: #fff0e9;
+  --error-text: #8b3a26;
+  --success-bg: #e9f2e2;
+  --success-text: #37602c;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --text-small: .75rem;
+  --text-label: .875rem;
+  --text-body: 1rem;
+  --text-section: 1.5rem;
+  --text-title: clamp(1.75rem, 3vw, 2.5rem);
+  --leading-body: 1.6;
+  --radius-control: 9px;
+  --radius-panel: 12px;
+  --radius-dialog: 16px;
+  --control-height: 48px;
+  --touch-target: 44px;
+  --layout-wide: 1280px;
+  --layout-content: 1150px;
+  --shadow-popover: 0 8px 24px #132c1d1a;
+  --layer-navigation: 10;
+  --layer-overlay: 40;
+  --layer-dialog: 41;
+  --layer-options: 30;
+  --mobile-navigation-height: 67px;
+}
